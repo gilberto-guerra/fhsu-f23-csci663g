@@ -378,6 +378,10 @@ def get_string_next_16_characters(string_to_encrypt, block_number):
         chunk = string_to_encrypt[block_number[0]*16:block_number[0]*16+16]
         print(
             "chunk = string_to_encrypt[block_number[0]*16:block_number[0]*16+16]", chunk)
+
+        print("chunk type", type(chunk))
+        print("string_to_encrypt type", type(string_to_encrypt))
+
         # Convert characters to ASCII and add them to the list
         block = [ord(char) for char in chunk]
         print("block = [ord(char) for char in chunk]", block)
@@ -494,7 +498,8 @@ def encrypt_string(string_to_encrypt, password, encrypted_output_string):
     print("encrypted_output_string depois (if file_size % 16 == 0)",
           encrypted_output_string)
 
-    return encrypted_output_string
+    encrypted_string = ''.join(encrypted_output_string)
+    return encrypted_string
 
 
 def decrypt_string(string_to_decrypt, password, decrypted_output_string=None):
@@ -502,6 +507,7 @@ def decrypt_string(string_to_decrypt, password, decrypted_output_string=None):
     block = [0] * 16  # plaintext
 
     print("string_to_decrypt dentro e antes decrypt", string_to_decrypt)
+    print("string_to_decrypt type", type(string_to_decrypt))
 
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
@@ -954,6 +960,7 @@ def main():
         if string_to_encrypt is None:
             print("Error: please write a message to encrypt and decrypt.")
         else:
+            print("string_to_encrypt", string_to_encrypt)
             # encrypt file
             print("Encrypt file.")
             password = getpass("Password: ")
