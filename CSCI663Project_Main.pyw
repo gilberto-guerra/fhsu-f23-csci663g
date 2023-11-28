@@ -216,6 +216,18 @@ rsa_params = RSAParameterGenerator()
 
 def open_aes_encrypt(root):
     aesWindow = Toplevel(root)
+    # aesWindow.pack(padx=40, pady=20)
+
+    Button(aesWindow, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+    Button(aesWindow, text='AES - Encrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+
+    root.title('CSCI663G VA - Fall 2023')
+
+
+def open_aes_string_message_encrypt(root):
+    aesWindow = Toplevel(root)
 
     def encrypt(plaintext, keys, options):
         password = keys[0].strip()
@@ -226,7 +238,23 @@ def open_aes_encrypt(root):
     aesFrame.pack(padx=20, pady=20)
 
 
+def open_aes_text_file_message_encrypt(root):
+    return
+
+
 def open_aes_decrypt(root):
+    aesWindow = Toplevel(root)
+    # aesWindow.pack(padx=40, pady=20)
+
+    Button(aesWindow, text='AES - Decrypt String Message', command=(lambda: open_aes_string_message_decrypt(root))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+    Button(aesWindow, text='AES - Decrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+
+    root.title('CSCI663G VA - Fall 2023')
+
+
+def open_aes_string_message_decrypt(root):
     aesWindow = Toplevel(root)
 
     def decrypt(ciphertext, keys, options):
@@ -236,6 +264,10 @@ def open_aes_decrypt(root):
     aesFrame = EncryptDecryptWindow(
         aesWindow, decrypt, ['Password'], {}, False, [], 'Decrypt')
     aesFrame.pack(padx=20, pady=20)
+
+
+def open_aes_text_file_message_decrypt(root):
+    return
 
 
 def open_rsa_keys(root):
