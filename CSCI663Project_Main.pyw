@@ -221,9 +221,9 @@ def open_aes_encrypt(root):
     aes_encrypt_window = Toplevel(root)
     # aesWindow.pack(padx=40, pady=20)
 
-    Button(aes_encrypt_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
+    Button(aes_encrypt_window, text='AES - Encrypt a String Message', command=(lambda: open_aes_string_message_encrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_encrypt_window, text='AES - Encrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
+    Button(aes_encrypt_window, text='AES - Encrypt a Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
     # root.title('CSCI663G VA - Fall 2023')
@@ -257,7 +257,7 @@ def open_aes_text_file_message_encrypt(root):
 
     # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
     #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_encrypt_text_file_message_window, text='AES - Select File to Encrypt', command=(lambda: open_aes_select_text_file_message_encrypt(root, user_password.get()))
+    Button(aes_encrypt_text_file_message_window, text='AES - Select a Text File to Encrypt', command=(lambda: open_aes_select_text_file_message_encrypt(root, user_password.get()))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
 
@@ -295,9 +295,9 @@ def open_aes_decrypt(root):
     aesWindow = Toplevel(root)
     # aesWindow.pack(padx=40, pady=20)
 
-    Button(aesWindow, text='AES - Decrypt String Message', command=(lambda: open_aes_string_message_decrypt(root))
+    Button(aesWindow, text='AES - Decrypt a String Message', command=(lambda: open_aes_string_message_decrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aesWindow, text='AES - Decrypt Text File Message', command=(lambda: open_aes_text_file_message_decrypt(root))
+    Button(aesWindow, text='AES - Decrypt a Text File Message', command=(lambda: open_aes_text_file_message_decrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
     # root.title('CSCI663G VA - Fall 2023')
@@ -331,7 +331,7 @@ def open_aes_text_file_message_decrypt(root):
 
     # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
     #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_decrypt_text_file_message_window, text='AES - Select File to Decrypt', command=(lambda: open_aes_select_text_file_message_decrypt(root, user_password.get()))
+    Button(aes_decrypt_text_file_message_window, text='AES - Select a Text File to Decrypt', command=(lambda: open_aes_select_text_file_message_decrypt(root, user_password.get()))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
 
