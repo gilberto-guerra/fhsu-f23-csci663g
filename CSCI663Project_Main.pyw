@@ -242,7 +242,27 @@ def open_aes_string_message_encrypt(root):
 
 
 def open_aes_text_file_message_encrypt(root):
-    # aesWindow = Toplevel(root)
+    aes_encrypt_text_file_message_window = Toplevel(root)
+    # aesWindow.pack(padx=40, pady=20)
+
+    password_label = tk.Label(
+        aes_encrypt_text_file_message_window, text="Password")
+    password_label.pack()
+
+    user_password = tk.StringVar()
+    password_text_box = tk.Entry(
+        aes_encrypt_text_file_message_window, width=100, textvariable=user_password)
+
+    password_text_box.pack()
+
+    # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
+    #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+    Button(aes_encrypt_text_file_message_window, text='AES - Select File to Encrypt', command=(lambda: open_aes_select_text_file_message_encrypt(root, user_password.get()))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+
+
+def open_aes_select_text_file_message_encrypt(root, password):
+    # open_aes_text_file_message_encrypt = Toplevel(root)
 
     selected_file_label = tk.Label(text="Selected File:")
     selected_file_label.pack()
@@ -268,7 +288,7 @@ def open_aes_text_file_message_encrypt(root):
     print("decrypted_file_name", encrypted_file_name)
     string_encrypted_file_name = "".join(encrypted_file_name)
     print("string_decrypted_file_name", string_encrypted_file_name)
-    aes.encrypt(file_to_encrypt_name, "password", string_encrypted_file_name)
+    aes.encrypt(file_to_encrypt_name, password, string_encrypted_file_name)
 
 
 def open_aes_decrypt(root):
@@ -296,6 +316,26 @@ def open_aes_string_message_decrypt(root):
 
 
 def open_aes_text_file_message_decrypt(root):
+    aes_decrypt_text_file_message_window = Toplevel(root)
+    # aesWindow.pack(padx=40, pady=20)
+
+    password_label = tk.Label(
+        aes_decrypt_text_file_message_window, text="Password")
+    password_label.pack()
+
+    user_password = tk.StringVar()
+    password_text_box = tk.Entry(
+        aes_decrypt_text_file_message_window, width=100, textvariable=user_password)
+
+    password_text_box.pack()
+
+    # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
+    #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+    Button(aes_decrypt_text_file_message_window, text='AES - Select File to Decrypt', command=(lambda: open_aes_select_text_file_message_decrypt(root, user_password.get()))
+           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
+
+
+def open_aes_select_text_file_message_decrypt(root, user_password):
     # aesWindow = Toplevel(root)
 
     selected_file_label = tk.Label(text="Selected File:")
