@@ -1,6 +1,6 @@
 ######## INFORMATION ############################################################
 #                                                                               #
-# CSCI663G VA                                                                   #
+# CSCI663G A                                                                    #
 # Fall 2023                                                                     #
 # Instructor: Dr. Hong Zeng                                                     #
 # Contributor to this file: José Nazareno Torres Ambrósio                       #
