@@ -5,7 +5,7 @@
 # Instructor: Dr. Hong Zeng                                                     #
 # Contributor to this file: José Nazareno Torres Ambrósio                       #
 #                                                                               #
-######## DOCUMENTATION ##########################################################
+#################################################################################
 
 import sys
 import hashlib
