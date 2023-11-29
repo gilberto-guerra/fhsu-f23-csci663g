@@ -1,6 +1,9 @@
 import logging
 import time
 from tkinter import *
+import tkinter as tk
+from tkinter import filedialog
+import os
 
 logging.basicConfig(level=logging.DEBUG,
                     format=' %(asctime)s -  %(levelname)s -  %(message)s')
@@ -215,31 +218,57 @@ rsa_params = RSAParameterGenerator()
 
 
 def open_aes_encrypt(root):
-    aesWindow = Toplevel(root)
+    aes_encrypt_window = Toplevel(root)
     # aesWindow.pack(padx=40, pady=20)
 
-    Button(aesWindow, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
+    Button(aes_encrypt_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aesWindow, text='AES - Encrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
+    Button(aes_encrypt_window, text='AES - Encrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
-    root.title('CSCI663G VA - Fall 2023')
+    # root.title('CSCI663G VA - Fall 2023')
 
 
 def open_aes_string_message_encrypt(root):
-    aesWindow = Toplevel(root)
+    aes_string_message_encrypt = Toplevel(root)
 
     def encrypt(plaintext, keys, options):
         password = keys[0].strip()
 
         return aes.encrypt_string(plaintext, password, [])
     aesFrame = EncryptDecryptWindow(
-        aesWindow, encrypt, ['Password'], {}, False, [], 'Encrypt')
+        aes_string_message_encrypt, encrypt, ['Password'], {}, False, [], 'Encrypt')
     aesFrame.pack(padx=20, pady=20)
 
 
 def open_aes_text_file_message_encrypt(root):
-    return
+    # aesWindow = Toplevel(root)
+
+    selected_file_label = tk.Label(text="Selected File:")
+    selected_file_label.pack()
+
+    file_path = filedialog.askopenfilename(title="Select a Text File to Encrypt", filetypes=[
+        ("Text files", "*.txt")])
+    if file_path:
+        selected_file_label.config(text=f"Selected File: {file_path}")
+        # process_file(file_path, file_text, selected_file_label)
+        # process_file(file_path, selected_file_label)
+
+    # file_to_encrypt_name = os.path.basename(file_path)
+    # aes.encrypt(file_to_encrypt_name, "password", "testfile_encrypted.txt")
+
+    file_to_encrypt_name = os.path.basename(file_path)
+
+    # Extract the filename without extension from the full path
+    encrypted_file_name, file_to_encrypt_extension = os.path.splitext(
+        os.path.basename(file_path))
+
+    encrypted_file_name = list(encrypted_file_name)
+    encrypted_file_name.extend("_encrypted.txt")
+    print("decrypted_file_name", encrypted_file_name)
+    string_encrypted_file_name = "".join(encrypted_file_name)
+    print("string_decrypted_file_name", string_encrypted_file_name)
+    aes.encrypt(file_to_encrypt_name, "password", string_encrypted_file_name)
 
 
 def open_aes_decrypt(root):
@@ -248,10 +277,10 @@ def open_aes_decrypt(root):
 
     Button(aesWindow, text='AES - Decrypt String Message', command=(lambda: open_aes_string_message_decrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aesWindow, text='AES - Decrypt Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
+    Button(aesWindow, text='AES - Decrypt Text File Message', command=(lambda: open_aes_text_file_message_decrypt(root))
            ).pack(fill=X, ipadx=4, ipady=4, pady=4)
 
-    root.title('CSCI663G VA - Fall 2023')
+    # root.title('CSCI663G VA - Fall 2023')
 
 
 def open_aes_string_message_decrypt(root):
@@ -267,7 +296,30 @@ def open_aes_string_message_decrypt(root):
 
 
 def open_aes_text_file_message_decrypt(root):
-    return
+    # aesWindow = Toplevel(root)
+
+    selected_file_label = tk.Label(text="Selected File:")
+    selected_file_label.pack()
+
+    file_path = filedialog.askopenfilename(title="Select a Text File to Decrypt", filetypes=[
+        ("Text files", "*.txt")])
+    if file_path:
+        selected_file_label.config(text=f"Selected File: {file_path}")
+        # process_file(file_path, file_text, selected_file_label)
+        # process_file(file_path, selected_file_label)
+
+    file_to_decrypt_name = os.path.basename(file_path)
+
+    # Extract the filename without extension from the full path
+    decrypted_file_name, file_to_decrypt_extension = os.path.splitext(
+        os.path.basename(file_path))
+
+    decrypted_file_name = list(decrypted_file_name)
+    decrypted_file_name.extend("_decrypted.txt")
+    print("decrypted_file_name", decrypted_file_name)
+    string_decrypted_file_name = "".join(decrypted_file_name)
+    print("string_decrypted_file_name", string_decrypted_file_name)
+    aes.decrypt(file_to_decrypt_name, "password", string_decrypted_file_name)
 
 
 def open_rsa_keys(root):

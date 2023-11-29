@@ -1,3 +1,12 @@
+######## INFORMATION ############################################################
+#                                                                               #
+# CSCI663G VA                                                                   #
+# Fall 2023                                                                     #
+# Instructor: Dr. Hong Zeng                                                     #
+# Contributor to this file: José Nazareno Torres Ambrósio                       #
+#                                                                               #
+######## DOCUMENTATION ##########################################################
+
 import sys
 import hashlib
 from random import randint
@@ -324,6 +333,7 @@ def aes_rounds_inverse(state, expanded_key, num_rounds=14):
 # Use SHA-256 to create a key from a user password
 def user_password_to_key(password):
     sha256 = hashlib.sha256()
+    password = ""
     password_bytes = password.encode('latin-1')
     sha256.update(password_bytes)
 
@@ -636,6 +646,9 @@ def get_next_block_of_16_characters(file_pointer):
 def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
     ciphertext = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # ciphertext
     block = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # plaintext
+
+    print("file_to_encrypt", file_to_encrypt)
+    print("file_to_encrypt", len(file_to_encrypt))
 
     # Initialization Vector
     initialization_vector = []
