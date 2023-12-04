@@ -1,12 +1,3 @@
-######## INFORMATION ############################################################
-#                                                                               #
-# CSCI663G A                                                                    #
-# Fall 2023                                                                     #
-# Instructor: Dr. Hong Zeng                                                     #
-# Contributor to this file: José Nazareno Torres Ambrósio                       #
-#                                                                               #
-#################################################################################
-
 import sys
 import hashlib
 from random import randint
@@ -646,9 +637,6 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
     ciphertext = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # ciphertext
     block = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # plaintext
 
-    print("file_to_encrypt", file_to_encrypt)
-    print("file_to_encrypt", len(file_to_encrypt))
-
     # Initialization Vector
     initialization_vector = []
     print("initialization_vector vazio", initialization_vector)
@@ -659,7 +647,6 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
     print("initialization_vector depois de ser gerado aleatoriamente com o randInt()",
           initialization_vector)
 
-    password = ""
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
 
@@ -668,7 +655,7 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
         file_pointer = open(file_to_encrypt, "rb")
     except:
         print("Cannot open file_to_encrypt -", file_to_encrypt)
-        # sys.exit()
+        sys.exit()
 
     # create a handle for the file that will contain the encrypted message
     if encrypted_output_text_file is not None:
@@ -677,14 +664,14 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
         except:
             print("Cannot open encrypted_output_text_file -",
                   encrypted_output_text_file)
-            # sys.exit()
+            sys.exit()
     else:
         file_name = file_to_encrypt+".aes"
         try:
             opened_text_file_to_encrypt = open(file_name, "w")
         except:
             print("Cannot open file_name -", file_name)
-            # sys.exit()
+            sys.exit()
 
     opened_text_file_to_encrypt = open(
         encrypted_output_text_file, "w", encoding="latin-1")
@@ -777,7 +764,6 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
                  0, 0, 0, 0, 0, 0]  # plaintext container
     block = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # ciphertext
 
-    password = ""
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
 
@@ -788,7 +774,7 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
             "file_pointer depois do file_pointer = open(file_to_decrypt, rb)", file_pointer)
     except:
         print("Cannot open file_to_decrypt -", file_to_decrypt)
-        # sys.exit()
+        sys.exit()
 
     # create handle for file to be decrypted
     # try:
@@ -806,7 +792,7 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
                 decrypted_output_text_file, "w", encoding="latin-1")
         except:
             print("Cannot open file_name -", file_name)
-            # sys.exit()
+            sys.exit()
     else:
         if file_to_decrypt[-4:] == ".aes":
             file_name = file_to_decrypt[:-4]
@@ -817,7 +803,7 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
             opened_text_file_to_decrypt = open(file_name, "w")
         except:
             print("Cannot open file_name -", file_name)
-            # sys.exit()
+            sys.exit()
 
     # recover the initialization vector, the first sixteen-byte block in the encrypted text file
     initialization_vector = get_next_block_of_16_characters(file_pointer)
