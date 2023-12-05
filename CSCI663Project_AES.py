@@ -643,8 +643,8 @@ def get_next_block_of_16_characters(file_pointer):
 # wrapper function that allows plaintext encryption
 # using Output Feedback (OFB) mode
 def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
-    ciphertext = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # ciphertext
-    block = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # plaintext
+    ciphertext = [0] * 16  # plaintext
+    block = [0] * 16  # plaintext
 
     print("file_to_encrypt", file_to_encrypt)
     print("file_to_encrypt", len(file_to_encrypt))
@@ -773,9 +773,8 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
 # wrapper function that allows ciphertext encryption
 # using Output Feedback (OFB) mode
 def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
-    plaintext = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0]  # plaintext container
-    block = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # ciphertext
+    plaintext = [0] * 16  # plaintext
+    block = [0] * 16  # plaintext
 
     password = ""
     # use the user password to generate an AES 256-bit key
