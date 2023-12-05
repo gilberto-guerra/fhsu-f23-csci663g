@@ -117,7 +117,7 @@ class EncryptDecryptWindow(Frame):
     #
     # ----------------------------------------------------------------
     #
-    def __init__(self, root, encrypt, keys, options, displayDefaults, defaultKeys, allowSelectFiles, buttonText):
+    def __init__(self, root, encrypt, keys, options, displayDefaults, defaultKeys, allowSelectFiles, encoding, buttonText):
         super().__init__()
         
         if displayDefaults and len(keys) != len(defaultKeys):
@@ -250,7 +250,7 @@ class EncryptDecryptWindow(Frame):
             if inputSource.get() == 'string':
                 return input_text.get(1.0, END).strip()
             else:
-                f = open(inputFile.get())
+                f = open(inputFile.get(), encoding=encoding)
                 txt = f.read()
                 f.close()
                 print(txt)
@@ -260,7 +260,7 @@ class EncryptDecryptWindow(Frame):
             if outputTarget.get() == 'string':
                 output_text.replace(txt)
             else:
-                f = open(outputFile.get(), 'w')
+                f = open(outputFile.get(), 'w', encoding=encoding)
                 f.write(str(txt))
                 print(txt)
                 f.close()
@@ -296,18 +296,6 @@ rsa_params = RSAParameterGenerator()
 
 
 def open_aes_encrypt(root):
-    aes_encrypt_window = Toplevel(root)
-    # aesWindow.pack(padx=40, pady=20)
-
-    Button(aes_encrypt_window, text='AES - Encrypt a String Message', command=(lambda: open_aes_string_message_encrypt(root))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_encrypt_window, text='AES - Encrypt a Text File Message', command=(lambda: open_aes_text_file_message_encrypt(root))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-
-    # root.title('CSCI663G VA - Fall 2023')
-
-
-def open_aes_string_message_encrypt(root):
     aes_string_message_encrypt = Toplevel(root)
 
     def encrypt(plaintext, keys, options):
@@ -315,73 +303,13 @@ def open_aes_string_message_encrypt(root):
 
         return aes.encrypt_string(plaintext, password, [])
     aesFrame = EncryptDecryptWindow(
-        aes_string_message_encrypt, encrypt, ['Password'], {}, False, [], False, 'Encrypt')
+        aes_string_message_encrypt, encrypt, ['Password'], {}, False, [], True, 'latin-1', 'Encrypt')
     aesFrame.pack(padx=20, pady=20)
 
 
-def open_aes_text_file_message_encrypt(root):
-    aes_encrypt_text_file_message_window = Toplevel(root)
-    # aesWindow.pack(padx=40, pady=20)
-
-    password_label = tk.Label(
-        aes_encrypt_text_file_message_window, text="Password")
-    password_label.pack()
-
-    user_password = tk.StringVar()
-    password_text_box = tk.Entry(
-        aes_encrypt_text_file_message_window, width=100, textvariable=user_password)
-
-    password_text_box.pack()
-
-    # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
-    #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_encrypt_text_file_message_window, text='AES - Select a Text File to Encrypt', command=(lambda: open_aes_select_text_file_message_encrypt(root, user_password.get()))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-
-
-def open_aes_select_text_file_message_encrypt(root, password):
-    # open_aes_text_file_message_encrypt = Toplevel(root)
-
-    selected_file_label = tk.Label(text="Selected File:")
-    selected_file_label.pack()
-
-    file_path = filedialog.askopenfilename(title="Select a Text File to Encrypt", filetypes=[
-        ("Text files", "*.txt")])
-    if file_path:
-        selected_file_label.config(text=f"Selected File: {file_path}")
-        # process_file(file_path, file_text, selected_file_label)
-        # process_file(file_path, selected_file_label)
-
-    # file_to_encrypt_name = os.path.basename(file_path)
-    # aes.encrypt(file_to_encrypt_name, "password", "testfile_encrypted.txt")
-
-    file_to_encrypt_name = os.path.basename(file_path)
-
-    # Extract the filename without extension from the full path
-    encrypted_file_name, file_to_encrypt_extension = os.path.splitext(
-        os.path.basename(file_path))
-
-    encrypted_file_name = list(encrypted_file_name)
-    encrypted_file_name.extend("_encrypted.txt")
-    print("decrypted_file_name", encrypted_file_name)
-    string_encrypted_file_name = "".join(encrypted_file_name)
-    print("string_decrypted_file_name", string_encrypted_file_name)
-    aes.encrypt(file_to_encrypt_name, password, string_encrypted_file_name)
 
 
 def open_aes_decrypt(root):
-    aesWindow = Toplevel(root)
-    # aesWindow.pack(padx=40, pady=20)
-
-    Button(aesWindow, text='AES - Decrypt a String Message', command=(lambda: open_aes_string_message_decrypt(root))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aesWindow, text='AES - Decrypt a Text File Message', command=(lambda: open_aes_text_file_message_decrypt(root))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-
-    # root.title('CSCI663G VA - Fall 2023')
-
-
-def open_aes_string_message_decrypt(root):
     aesWindow = Toplevel(root)
 
     def decrypt(ciphertext, keys, options):
@@ -389,55 +317,8 @@ def open_aes_string_message_decrypt(root):
 
         return aes.decrypt_string(ciphertext, password, [])
     aesFrame = EncryptDecryptWindow(
-        aesWindow, decrypt, ['Password'], {}, False, [], False, 'Decrypt')
+        aesWindow, decrypt, ['Password'], {}, False, [], True, 'latin-1', 'Decrypt')
     aesFrame.pack(padx=20, pady=20)
-
-
-def open_aes_text_file_message_decrypt(root):
-    aes_decrypt_text_file_message_window = Toplevel(root)
-    # aesWindow.pack(padx=40, pady=20)
-
-    password_label = tk.Label(
-        aes_decrypt_text_file_message_window, text="Password")
-    password_label.pack()
-
-    user_password = tk.StringVar()
-    password_text_box = tk.Entry(
-        aes_decrypt_text_file_message_window, width=100, textvariable=user_password)
-
-    password_text_box.pack()
-
-    # Button(aes_encrypt_text_file_message_window, text='AES - Encrypt String Message', command=(lambda: open_aes_string_message_encrypt(root))
-    #        ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-    Button(aes_decrypt_text_file_message_window, text='AES - Select a Text File to Decrypt', command=(lambda: open_aes_select_text_file_message_decrypt(root, user_password.get()))
-           ).pack(fill=X, ipadx=4, ipady=4, pady=4)
-
-
-def open_aes_select_text_file_message_decrypt(root, user_password):
-    # aesWindow = Toplevel(root)
-
-    selected_file_label = tk.Label(text="Selected File:")
-    selected_file_label.pack()
-
-    file_path = filedialog.askopenfilename(title="Select a Text File to Decrypt", filetypes=[
-        ("Text files", "*.txt")])
-    if file_path:
-        selected_file_label.config(text=f"Selected File: {file_path}")
-        # process_file(file_path, file_text, selected_file_label)
-        # process_file(file_path, selected_file_label)
-
-    file_to_decrypt_name = os.path.basename(file_path)
-
-    # Extract the filename without extension from the full path
-    decrypted_file_name, file_to_decrypt_extension = os.path.splitext(
-        os.path.basename(file_path))
-
-    decrypted_file_name = list(decrypted_file_name)
-    decrypted_file_name.extend("_decrypted.txt")
-    print("decrypted_file_name", decrypted_file_name)
-    string_decrypted_file_name = "".join(decrypted_file_name)
-    print("string_decrypted_file_name", string_decrypted_file_name)
-    aes.decrypt(file_to_decrypt_name, "password", string_decrypted_file_name)
 
 
 def open_rsa_keys(root):
@@ -489,7 +370,7 @@ def open_rsa_encrypt(root):
         return rsa.encrypt(plaintext, n, e, options['encode'] == '1')
 
     rsaFrame = EncryptDecryptWindow(rsaWindow, encrypt, ['n', 'e'], {'encode': {
-                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], False, 'Encrypt')
+                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], True, 'utf-8','Encrypt')
     rsaFrame.pack(padx=20, pady=20)
 
 
@@ -509,10 +390,10 @@ def open_rsa_decrypt(root):
         try:
             return rsa.decrypt(int(ciphertext), n, d, options['decode'] == '1')
         except UnicodeDecodeError as e:
-            return f'ERROR: {e}\n\nPerhaps you should select the \'Keep message as integer\' option?'
+            return f'ERROR: {e}\n\nPerhaps you should select the \'Keep message as integer\' option, or you inputted the wrong keys?'
 
     rsaFrame = EncryptDecryptWindow(rsaWindow, decrypt, ['n', 'd'], {'decode': {
-                                    '0': 'Convert decrypted message integer to bytes in little-endian order, then to string', '1': 'Keep message as integer'}}, True, [str(def_n), str(def_d)], True, 'Decrypt')
+                                    '0': 'Convert decrypted message integer to bytes in little-endian order, then to string', '1': 'Keep message as integer'}}, True, [str(def_n), str(def_d)], True, 'utf-8', 'Decrypt')
     rsaFrame.pack(padx=20, pady=20)
 
 root = Tk()
