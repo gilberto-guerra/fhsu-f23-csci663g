@@ -360,23 +360,17 @@ def expandKey(cipher_key):
         # assigns previous expanded_key's four bytes to the temporary storage expanded_key_next_4_bytes
         for i in range(4):
             expanded_key_next_4_bytes[i] = expanded_key[(current_size - 4) + i]
-            print("expanded_key_next_4_bytes inicial",
-                  expanded_key_next_4_bytes)
 
         # the key_schedule is applied to every 32 bytes to expanded_key_next_4_bytes
         if current_size % cipher_key_size == 0:
             expanded_key_next_4_bytes = key_schedule(
                 expanded_key_next_4_bytes, round_constant_index)
             round_constant_index += 1
-            print("expanded_key_next_4_bytes if current_size resto por cipher_key_size key_schedule",
-                  expanded_key_next_4_bytes)
 
         # an extra SUBSTITUTION_BOX transform is added because of the 256-bit key use
         if current_size % cipher_key_size == 16:
             for i in range(4):
                 expanded_key_next_4_bytes[i] = SUBSTITUTION_BOX[expanded_key_next_4_bytes[i]]
-                print("expanded_key_next_4_bytes if current_size resto por cipher_key_size == 16",
-                      expanded_key_next_4_bytes)
 
         # the expanded_key_next_4_bytes is XORed with the four-byte block [16,24,32] before the end
         # of the current expanded_key. These four bytes become the next bytes in the expanded_key
@@ -384,9 +378,7 @@ def expandKey(cipher_key):
             expanded_key.append(
                 ((expanded_key[current_size - cipher_key_size]) ^ (expanded_key_next_4_bytes[i])))
             current_size += 1
-            print("current_size", current_size)
 
-    print("expanded_key", expanded_key)
     return expanded_key
 
 
@@ -506,11 +498,19 @@ def create_round_key(expanded_key, n):
 
 # applies each of the round's four transformations
 # with the exception of the last round which does not contains the column mixing part
-def aes_round(state, round_key):
+def aes_round(state, round_key, round_number, aes_steps):
     substitution_bytes(state)
+    aes_steps.append("Round Key " + str(round_number) + " Byte Substitution")
+    aes_steps.append(state)
     shift_rows(state)
+    aes_steps.append("Round Key " + str(round_number) + " Shift Rows")
+    aes_steps.append(state)
     mix_columns(state)
+    aes_steps.append("Round Key " + str(round_number) + " Mix Columns")
+    aes_steps.append(state)
     add_round_key(state, round_key)
+    aes_steps.append("Round Key " + str(round_number) + " Round Key Addition")
+    aes_steps.append(state)
 
 
 # applies the inverse of each round's four transformations
@@ -523,19 +523,31 @@ def aes_round_inverse(state, round_key):
 
 
 # wrapper function for the fourteen aes-rounds because of the 256-bit key use
-def aes_rounds(state, expanded_key, num_rounds=14):
+def aes_rounds(state, expanded_key, aes_steps, num_rounds=14):
     round_key = create_round_key(expanded_key, 0)
+    aes_steps.append("Initial Round Key")
+    aes_steps.append(round_key)
     add_round_key(state, round_key)
 
     for i in range(1, num_rounds):
         round_key = create_round_key(expanded_key, i)
-        aes_round(state, round_key)
+        aes_steps.append("Round Key " + str(i))
+        aes_steps.append(round_key)
+        aes_round(state, round_key, i, aes_steps)
 
     # the final round does not include the column mixing transformation
     round_key = create_round_key(expanded_key, num_rounds)
+    aes_steps.append("Final Round Key 14")
+    aes_steps.append(round_key)
     substitution_bytes(state)
+    aes_steps.append("Final Round 14 Byte Substitution")
+    aes_steps.append(state)
     shift_rows(state)
+    aes_steps.append("Final Round 14 Shift Rows")
+    aes_steps.append(state)
     add_round_key(state, round_key)
+    aes_steps.append("Final Round 14 Round Key Addition")
+    aes_steps.append(state)
 
 
 # wrapper function for the fourteen aes-rounds inverse because of the 256-bit key use
@@ -564,26 +576,27 @@ def user_password_to_key(password):
 
     key = []
 
-    print("password", password)
-
     digest = sha256.digest()
-    print("user_password_to_key sha256 digest", digest)
-    print(type(digest))
 
     if type(digest) is str:
         key = list(map(ord, digest))
     elif type(digest) is bytes:
         key = [ord(chr(byte)) for byte in digest]
 
-    print("key", key)
     return key
 
 
 # encrypt or decrypt a block (sixteen bytes) of plaintext
-def aes_encrypt_or_decrypt_block(plaintext, key):
+def aes_encrypt_or_decrypt_block(plaintext, key, aes_steps):
     block = copy(plaintext)
+    aes_steps.append("Message block to Encrypt")
+    aes_steps.append(block)
     expanded_key = expandKey(key)
-    aes_rounds(block, expanded_key)
+    aes_steps.append("Expanded Key")
+    aes_steps.append(expanded_key)
+    aes_rounds(block, expanded_key, aes_steps)
+    aes_steps.append("Message block after AES rounds")
+    aes_steps.append(block)
     return block
 
 
@@ -592,51 +605,39 @@ def aes_encrypt_or_decrypt_block(plaintext, key):
 # it paddles the block with new n characters.
 # With n being the number of characters needed to get sixteen bytes
 # when added to the number of bytes left in the string message.
-def get_string_next_16_characters(string_to_encrypt, block_number):
-    print("block_number[0]", block_number[0])
+def get_string_next_16_characters(string_to_encrypt_or_decrypt, block_number, aes_steps):
+    aes_steps.append("Message block " + str(block_number[0] + 1))
 
     # If there are characters left in the string, to encrypt
-    if ((block_number[0] * 16) - 16 < len(string_to_encrypt)):
-        print("block_number[0] * 16 - 16 < len(string_to_encrypt)",
-              block_number[0] * 16 - 16 < len(string_to_encrypt))
-        print("block_number[0]", block_number[0])
-        print("block_number[0] * 16", block_number[0] * 16)
-        print("(block_number[0] * 16) - 16", (block_number[0] * 16) - 16)
-        print("len(string_to_encrypt)", len(string_to_encrypt))
+    if ((block_number[0] * 16) - 16 < len(string_to_encrypt_or_decrypt)):
 
         # If there is no character left in the string, to encrypt
-        if ((block_number[0] * 16) >= len(string_to_encrypt)):
-            print("len(string_to_encrypt) % 16 == 0",
-                  len(string_to_encrypt) % 16 == 0)
+        if ((block_number[0] * 16) >= len(string_to_encrypt_or_decrypt)):
             return ""
 
-        chunk = string_to_encrypt[block_number[0]*16:block_number[0]*16+16]
-        print(
-            "chunk = string_to_encrypt[block_number[0]*16:block_number[0]*16+16]", chunk)
+        chunk = string_to_encrypt_or_decrypt[block_number[0]
+                                             * 16:block_number[0]*16+16]
 
-        print("chunk type", type(chunk))
-        print("string_to_encrypt type", type(string_to_encrypt))
+        aes_steps.append("Message characters to Encrypt or Decrypt " +
+                         str(block_number[0] + 1))
+        aes_steps.append(chunk)
 
         # Convert characters to ASCII and add them to the list
         block = [ord(char) for char in chunk]
-        print("block = [ord(char) for char in chunk]", block)
 
         # If there are less than sixteen characters left in the string to encrypt,
         # apply padding
-        if ((block_number[0] * 16) + 16 > len(string_to_encrypt)):
+        if ((block_number[0] * 16) + 16 > len(string_to_encrypt_or_decrypt)):
             numbers_of_characters_left = (
-                (block_number[0] * 16) + 16) - len(string_to_encrypt)
-
-            print("numbers_of_characters_left", numbers_of_characters_left)
-            print("Entrei no len(string_to_encrypt) % 16 != 0")
+                (block_number[0] * 16) + 16) - len(string_to_encrypt_or_decrypt)
 
             padChar = numbers_of_characters_left
-            print(
-                "padChar depois do padChar = 16-len(numbers_of_characters_left)", padChar)
 
             block.extend([padChar for _ in range(numbers_of_characters_left)])
-            print(
-                "block = [padChar for _ in range(numbers_of_characters_left)", block)
+
+    aes_steps.append("Message block to Encrypt or Decrypt " +
+                     str(block_number[0] + 1))
+    aes_steps.append(block)
 
     block_number[0] += 1
 
@@ -646,182 +647,151 @@ def get_string_next_16_characters(string_to_encrypt, block_number):
 def encrypt_string(string_to_encrypt, password, encrypted_output_string):
     ciphertext = [0] * 16  # ciphertext
     block = [0] * 16  # plaintext
+    aes_steps = []
 
     # Initialization Vector
     initialization_vector = []
-    print("initialization_vector vazio", initialization_vector)
 
     initialization_vector = [185, 177, 50, 124, 65, 90, 169, 171,
                              201, 49, 140, 98, 166, 14, 214, 178]
 
-    # for i in range(16):
-    # Depois de converter o codigo para Python 3, tentar substituir esta linha para: initialization_vector.append(secrets.randbelow(256))
-    #     initialization_vector.append(randint(0, 255))
-
-    print("initialization_vector depois de ser gerado aleatoriamente com o randInt()",
-          initialization_vector)
-
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
+    aes_steps.append("Initial Key")
+    aes_steps.append(aes_key)
 
     # assign the initialization_vector bytes the encrypted_output_string list
     encrypted_output_string = [chr(i) for i in initialization_vector]
+    # aes_steps.append(encrypted_output_string)
 
     # get the string-message file size in bytes
     file_size = len(string_to_encrypt)
 
     # read the string-message in blocks of sixteen characters to encrypt
     first_round = True
-    print("block antes do primeiro get_string_next_16_characters(string_to_encrypt, block_number)", block)
     block_number = [0]
-    block = get_string_next_16_characters(string_to_encrypt, block_number)
+    block = get_string_next_16_characters(
+        string_to_encrypt, block_number, aes_steps)
     # block = get_next_block_of_16_characters(file_pointer)
-    print("block depois do primeiro get_string_next_16_characters(string_to_encrypt, block_number)", block)
 
     while block != "":
-        print("Entrei no while block != \"\" ")
-        print("while block != ", block)
-
         if first_round:
             block_key = aes_encrypt_or_decrypt_block(
-                initialization_vector, aes_key)
+                initialization_vector, aes_key, aes_steps)
             first_round = False
         else:
-            block_key = aes_encrypt_or_decrypt_block(block_key, aes_key)
-
-        # print("ciphertext", ciphertext)
-        # print("block", block)
-        # print("block", len(block))
-        # print("block_key", block_key)
+            block_key = aes_encrypt_or_decrypt_block(
+                block_key, aes_key, aes_steps)
 
         for i in range(16):
-            print("ciphertext", ciphertext)
-            print("ciphertext lenght", len(ciphertext))
-            print("block", block)
-            print("block lenght", len(block))
-            print("block_key", block_key)
-            print("block_key lenght", len(block_key))
             ciphertext[i] = block[i] ^ block_key[i]
 
-        print("ciphertext depois do xor do block e do block_key", ciphertext)
-        # assin the ciphertext to the encrypted_output_string list
+        aes_steps.append("Cipher Block " + str(block_number[0]))
+        aes_steps.append(ciphertext)
+
+        # assign the ciphertext to the encrypted_output_string list
         # Convert integers to characters
         ciphertext_char_list = [chr(i) for i in ciphertext]
+
+        aes_steps.append("Ciphertext Block " + str(block_number[0]))
+        aes_steps.append(ciphertext_char_list)
 
         # Add each sixteen-byte block ciphertext to the end of the encrypted_output_string list
         encrypted_output_string.extend(ciphertext_char_list)
 
-        print("encrypted_output_string depois de write o ciphertext",
-              encrypted_output_string)
-        print("type(ciphertext) depois de write o ciphertext", type(ciphertext))
-        print("type(encrypted_output_string) depois de write o ciphertext",
-              type(encrypted_output_string))
+        # aes_steps.append("Encrypted Message plus Block " +
+        #                  str(block_number[0]))
+        # aes_steps.append(encrypted_output_string)
 
         # get the next sixteen-characters block from the string-message
-        block = get_string_next_16_characters(string_to_encrypt, block_number)
-        print(
-            "entrei no segundo get_string_next_16_characters(string_to_encrypt, block_number)")
-        print("block", block)
+        block = get_string_next_16_characters(
+            string_to_encrypt, block_number, aes_steps)
 
-    print("file_size antes do (if file_size % 16 == 0)", file_size)
+        aes_steps.append("Block " + str(block_number[0]))
+        aes_steps.append(block)
 
     # add an extra padding block if the message ends on a block boundary
     if file_size % 16 == 0:
-        # encrypted_output_string.write(16*chr(16))
         encrypted_output_string.extend(16*chr(16))
-
-    print("encrypted_output_string depois (if file_size % 16 == 0)",
-          encrypted_output_string)
+        aes_steps.append("Encrypted Message")
+        aes_steps.append(encrypted_output_string)
 
     encrypted_string = ''.join(encrypted_output_string)
-    return encrypted_string
+    aes_steps.append("Encrypted Message")
+    aes_steps.append(encrypted_string)
+
+    return encrypted_string, aes_steps
 
 
 def decrypt_string(string_to_decrypt, password, decrypted_output_string=None):
     plaintext = [0] * 16  # plaintext
     block = [0] * 16  # plaintext
 
-    print("string_to_decrypt dentro e antes decrypt", string_to_decrypt)
-    print("string_to_decrypt type", type(string_to_decrypt))
+    aes_steps = []
 
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
+    aes_steps.append("Initial Key")
+    aes_steps.append(aes_key)
 
     # recover the initialization vector, the first block in the string-message list
     block_number = [0]
     initialization_vector = get_string_next_16_characters(
-        string_to_decrypt, block_number)
+        string_to_decrypt, block_number, aes_steps)
 
-    print("initialization_vector depois do initialization_vector = get_string_next_16_characters(string_to_decrypt, block_number)", initialization_vector)
-    print(
-        "initialization_vector length depois do initialization_vector = get_string_next_16_characters(string_to_decrypt, block_number)", len(initialization_vector))
+    # aes_steps.append(initialization_vector)
 
     string_to_decrypt = string_to_decrypt[16:]
-    print("string_to_decrypt = string_to_decrypt[16:]", string_to_decrypt)
-    print("string_to_decrypt lenght", len(string_to_decrypt))
 
     # read the encrypted string-message list in blocks of sixteen characters to decrypt
     first_round = True
     block_number = [0]
-    block = get_string_next_16_characters(string_to_decrypt, block_number)
-    print("block = get_string_next_16_characters(string_to_decrypt, block_number)", block)
+    block = get_string_next_16_characters(
+        string_to_decrypt, block_number, aes_steps)
 
     while block != "":
         if first_round:
             block_key = aes_encrypt_or_decrypt_block(
-                initialization_vector, aes_key)
+                initialization_vector, aes_key, aes_steps)
             first_round = False
         else:
-            block_key = aes_encrypt_or_decrypt_block(block_key, aes_key)
-
-        print("block antes do plaintext[i] = block[i] ^ block_key[i]", block)
-        print(
-            "block lenght antes do plaintext[i] = block[i] ^ block_key[i]", len(block))
-        print(
-            "block_key antes do plaintext[i] = block[i] ^ block_key[i]", block_key)
-        print(
-            "block_key lenght antes do plaintext[i] = block[i] ^ block_key[i]", len(block_key))
-
-        print("plaintext antes do for i in range(16) do decrypt", plaintext)
-        print("plaintext lenght antes do for i in range(16) do decrypt", len(plaintext))
+            block_key = aes_encrypt_or_decrypt_block(
+                block_key, aes_key, aes_steps)
 
         for i in range(16):
-            print("i no for i in range(16)", i)
             plaintext[i] = block[i] ^ block_key[i]
-            print("plaintext dentro do for i in range(16) do decrypt", plaintext)
-            print("plaintext lenght", len(plaintext))
 
-        print("plaintext depois do for i in range(16) do decrypt", plaintext)
-        print("plaintext lenght", len(plaintext))
+        aes_steps.append("Plaintext Block " + str(block_number[0]))
+        aes_steps.append(plaintext)
 
         # throw out the number of bytes represented by the last byte in the block
         # when on the block of text
         if block_number[0] * 16 + 16 > len(string_to_decrypt):
             plaintext = plaintext[0:-(plaintext[-1])]
-            print(
-                "plaintext dentro do if file_pointer.tell() == file_size do decrypt", plaintext)
-            print("plaintext lenght", len(plaintext))
 
-        print("plaintext", plaintext)
-        print("plaintext lenght", len(plaintext))
+        aes_steps.append("Plaintext Block " + str(block_number[0]))
+        aes_steps.append(plaintext)
 
         # Add each sixteen-byte plaintext block to the end of the decrypted_output_string list
 
         decrypted_output_string.extend([chr(i) for i in plaintext])
 
-        print("decrypted_output_string depois de write o plaintext",
-              decrypted_output_string)
+        # aes_steps.append("Decrypted Message plus Block " +
+        #                  str(block_number[0]))
+        # aes_steps.append(decrypted_output_string)
 
         # get the next sixteen-byte block from encrypted string-message list
-        block = get_string_next_16_characters(string_to_decrypt, block_number)
-        print(
-            "block = get_string_next_16_characters(string_to_decrypt, block_number)", block)
+        block = get_string_next_16_characters(
+            string_to_decrypt, block_number, aes_steps)
 
-    print("plaintext", plaintext)
-    print("plaintext lenght", len(plaintext))
+        aes_steps.append("Decrypted Message Block " + str(block_number[0]))
+        aes_steps.append(block)
 
     decrypted_string = ''.join(decrypted_output_string)
-    return decrypted_string
+    aes_steps.append("Decrypted Message")
+    aes_steps.append(decrypted_string)
+
+    return decrypted_string, aes_steps
 
 
 # return sixteen-byte block from an open file
@@ -829,39 +799,44 @@ def decrypt_string(string_to_decrypt, password, decrypted_output_string=None):
 # it paddles the block with new n characters.
 # With n being the number of characters needed to get sixteen bytes
 # when added to the number of bytes left in the string message.
-def get_next_block_of_16_characters(file_pointer):
-    print("file_pointer", file_pointer)
+def get_next_block_of_16_characters(file_pointer, block_number, aes_steps):
+    aes_steps.append("Message block " + str(block_number[0] + 1))
+
     next_characters = file_pointer.read(16)
-    print("next_characters", next_characters)
-    print("next_characters lenght", len(next_characters))
+
+    aes_steps.append("Message block to Encrypt or Decrypt " +
+                     str(next_characters))
+    aes_steps.append(next_characters)
 
     # if reached the end of the file
     if len(next_characters) == 0:
-        print("Entrei no if len(next_characters) == 0")
-        print("next_characters", next_characters)
-        print("next_characters lenght", len(next_characters))
         return ""
 
     # block list to store sixteen-byte block per time
     block = []
-    print("block", block)
-    print("block lenght", len(block))
 
     block = [ord(chr(byte)) for byte in next_characters]
-    print("block", block)
-    print("block lenght", len(block))
+
+    aes_steps.append("Message block to Encrypt or Decrypt " +
+                     str(block_number[0] + 1))
+    aes_steps.append(block)
+
+    aes_steps.append("Message characters to Encrypt or Decrypt " +
+                     str(block_number[0] + 1))
+    aes_steps.append(str(chr(block)))
 
     # if the block is smaller than sixteen-byte size,
     # pad the block with the string value that represents the number of missing bytes
     if len(block) < 16:
-        print("Entrei no  if len(block) < 16")
         padChar = 16-len(block)
-        print("padChar depois do padChar = 16-len(block)", padChar)
         while len(block) < 16:
-            print("Entrei no while len(block) < 16")
-            print("block", block)
-            print("block lenght", len(block))
             block.append(padChar)
+
+    aes_steps.append("Message block to Encrypt or Decrypt " +
+                     str(block_number[0] + 1))
+    aes_steps.append(block)
+
+    block_number[0] += 1
 
     return block
 
@@ -872,22 +847,19 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
     ciphertext = [0] * 16  # plaintext
     block = [0] * 16  # plaintext
 
-    print("file_to_encrypt", file_to_encrypt)
-    print("file_to_encrypt", len(file_to_encrypt))
+    aes_steps = []
 
     # Initialization Vector
     initialization_vector = []
-    print("initialization_vector vazio", initialization_vector)
 
     initialization_vector = [185, 177, 50, 124, 65, 90, 169, 171,
                              201, 49, 140, 98, 166, 14, 214, 178]
 
-    print("initialization_vector depois de ser gerado aleatoriamente com o randInt()",
-          initialization_vector)
-
     password = ""
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
+    aes_steps.append("Initial Key")
+    aes_steps.append(aes_key)
 
     # create a handle for the file that will be encrypted
     try:
@@ -928,68 +900,41 @@ def encrypt(file_to_encrypt, password, encrypted_output_text_file=None):
 
     # read the file in sixteen-byte blocks of input to encrypt
     first_round = True
-    print("block antes do primeiro get_next_block_of_16_characters(file_pointer)", block)
-    block = get_next_block_of_16_characters(file_pointer)
-    print("block depois do primeiro get_next_block_of_16_characters(file_pointer)", block)
+    block_number = [0]
+    block = get_next_block_of_16_characters(
+        file_pointer, block_number, aes_steps)
 
     while block != "":
-        print("Entrei no while block != \"\" ")
-        print("while block != ", block)
-
         if first_round:
             block_key = aes_encrypt_or_decrypt_block(
-                initialization_vector, aes_key)
+                initialization_vector, aes_key, aes_steps)
             first_round = False
         else:
-            block_key = aes_encrypt_or_decrypt_block(block_key, aes_key)
-
-        # print("ciphertext", ciphertext)
-        # print("block", block)
-        # print("block", len(block))
-        # print("block_key", block_key)
+            block_key = aes_encrypt_or_decrypt_block(
+                block_key, aes_key, aes_steps)
 
         for i in range(16):
-            print("ciphertext", ciphertext)
-            print("ciphertext lenght", len(ciphertext))
-            print("block", block)
-            print("block lenght", len(block))
-            print("block_key", block_key)
-            print("block_key lenght", len(block_key))
             ciphertext[i] = block[i] ^ block_key[i]
-
-        print("ciphertext depois do xor do block e do block_key", ciphertext)
 
         # write the sixteen-byte block ciphertext to the opened_text_file_to_encrypt per time
         for c in ciphertext:
             opened_text_file_to_encrypt.write(chr(c))
-            print("c dentro do for c in ciphertext", c)
-            print("chr(c) dentro do for c in ciphertext", chr(c))
-            # print("c lenght dentro do for c in ciphertext", len(c))
-
-            print("chr(c) length dentro do for c in ciphertext", len(chr(c)))
-            print("type(c)", type(c))
-            print("chr(c) lenght", len(chr(c)))
-            print("type(chr(c))", type(chr(c)))
-            print("chr(c).isSpace()", chr(c).isspace())
-
-        print("opened_text_file_to_encrypt depois de write o ciphertext", ciphertext)
-        print("type(ciphertext) depois de write o ciphertext", type(ciphertext))
-        print("type(opened_text_file_to_encrypt) depois de write o ciphertext", type(
-            opened_text_file_to_encrypt))
 
         # get the next sixteen-byte block to be encrypeted from input file
-        block = get_next_block_of_16_characters(file_pointer)
-        print("entrei no segundo get_next_block_of_16_characters(file_pointer)")
-        print("block", block)
+        block = get_next_block_of_16_characters(
+            file_pointer, block_number, aes_steps)
 
-    print("file_size antes do (if file_size % 16 == 0)", file_size)
+        aes_steps.append("Block " + str(block_number[0]))
+        aes_steps.append(block)
 
     # add an extra padding block if the message ends on a block boundary
     if file_size % 16 == 0:
         opened_text_file_to_encrypt.write(16*chr(16))
+        aes_steps.append("Encrypted Message")
+        aes_steps.append(opened_text_file_to_encrypt)
 
-    print("opened_text_file_to_encrypt depois (if file_size % 16 == 0)",
-          opened_text_file_to_encrypt)
+    aes_steps.append("Encrypted Message")
+    aes_steps.append(opened_text_file_to_encrypt)
 
     # close file pointers
     file_pointer.close()
@@ -1002,27 +947,20 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
     plaintext = [0] * 16  # plaintext
     block = [0] * 16  # plaintext
 
+    aes_steps = []
+
     password = ""
     # use the user password to generate an AES 256-bit key
     aes_key = user_password_to_key(password)
+    aes_steps.append("Initial Key")
+    aes_steps.append(aes_key)
 
     # create a handle for the file that will be decrypted
     try:
         file_pointer = open(file_to_decrypt, "rb")
-        print(
-            "file_pointer depois do file_pointer = open(file_to_decrypt, rb)", file_pointer)
     except:
         print("Cannot open file_to_decrypt -", file_to_decrypt)
         # sys.exit()
-
-    # create handle for file to be decrypted
-    # try:
-    #     file_pointer = open(file_to_decrypt, "rb")
-    #     print(
-    #         "file_pointer depois do file_pointer = open(file_to_decrypt, rb)", file_pointer)
-    # except:
-    #     print("Cannot open file_to_decrypt -", file_to_decrypt)
-    #     sys.exit()
 
     # create a handle for the decrypted_output_text_file
     if decrypted_output_text_file is not None:
@@ -1045,7 +983,9 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
             # sys.exit()
 
     # recover the initialization vector, the first sixteen-byte block in the encrypted text file
-    initialization_vector = get_next_block_of_16_characters(file_pointer)
+    block_number = [0]
+    initialization_vector = get_next_block_of_16_characters(
+        file_pointer, block_number, aes_steps)
 
     # putting the file pointer at the end of the file
     file_pointer.seek(0, 2)
@@ -1055,62 +995,47 @@ def decrypt(file_to_decrypt, password, decrypted_output_text_file=None):
     # putting the file pointer back at the first block of ciphertext
     file_pointer.seek(16)
 
-    print("block antes do block = get_next_block_of_16_characters(file_pointer)", block)
-    print(
-        "block lenght antes do block = get_next_block_of_16_characters(file_pointer)", len(block))
-
     # read the sixteen-byte block from the encrypted_text_file to decrypt
     first_round = True
-    block = get_next_block_of_16_characters(file_pointer)
+    block_number = [0]
+    block = get_next_block_of_16_characters(
+        file_pointer, block_number, aes_steps)
     while block != "":
         if first_round:
             block_key = aes_encrypt_or_decrypt_block(
-                initialization_vector, aes_key)
+                initialization_vector, aes_key, aes_steps)
             first_round = False
         else:
-            block_key = aes_encrypt_or_decrypt_block(block_key, aes_key)
-
-        print("block antes do plaintext[i] = block[i] ^ block_key[i]", block)
-        print(
-            "block lenght antes do plaintext[i] = block[i] ^ block_key[i]", len(block))
-        print(
-            "block_key antes do plaintext[i] = block[i] ^ block_key[i]", block_key)
-        print(
-            "block_key lenght antes do plaintext[i] = block[i] ^ block_key[i]", len(block_key))
-
-        print("plaintext antes do for i in range(16) do decrypt", plaintext)
-        print("plaintext lenght antes do for i in range(16) do decrypt", len(plaintext))
+            block_key = aes_encrypt_or_decrypt_block(
+                block_key, aes_key, aes_steps)
 
         for i in range(16):
             plaintext[i] = block[i] ^ block_key[i]
-            print("plaintext dentro do for i in range(16) do decrypt", plaintext)
-            print("plaintext lenght", len(plaintext))
+
+        aes_steps.append("Plaintext Block " + str(block_number[0]))
+        aes_steps.append(plaintext)
 
         # throw out the number of bytes represented by the last byte in the block
         # when in the last block of text
         if file_pointer.tell() == file_size:
             plaintext = plaintext[0:-(plaintext[-1])]
-            print(
-                "plaintext dentro do if file_pointer.tell() == file_size do decrypt", plaintext)
-            print("plaintext lenght", len(plaintext))
 
-        print("plaintext", plaintext)
-        print("plaintext lenght", len(plaintext))
+        aes_steps.append("Plaintext Block " + str(block_number[0]))
+        aes_steps.append(plaintext)
 
         # write sixteen-byte block of plaintext to the opened_text_file_to_decrypt per time
         for c in plaintext:
             opened_text_file_to_decrypt.write(chr(c))
-            print("c dentro do for c in plaintext", c)
-            print("chr(c) dentro do for c in plaintext", chr(c))
-
-        print("opened_text_file_to_decrypt depois de write o plaintext",
-              decrypted_output_text_file)
 
         # get the next sixteen-byte block from encrypted_text_file
-        block = get_next_block_of_16_characters(file_pointer)
+        block = get_next_block_of_16_characters(
+            file_pointer, block_number, aes_steps)
 
-    print("plaintext", plaintext)
-    print("plaintext lenght", len(plaintext))
+        aes_steps.append("Decrypted Message Block " + str(block_number[0]))
+        aes_steps.append(block)
+
+    aes_steps.append("Decrypted Message")
+    aes_steps.append(block)
 
     # closing the file pointers
     file_pointer.close()
@@ -1127,9 +1052,12 @@ def print_how_to_use():
 def main():
 
     # containers for the command-line arguments
-    input_option = input("Choose input option (1 or 2): ")
+
+    input_option = ""
 
     while (input_option != "textfile" and input_option != "string"):
+        input_option = input("Choose input option (1 or 2): ")
+
         if (input_option == "1"):
             input_option = "textfile"
         elif (input_option == "2"):
@@ -1147,7 +1075,6 @@ def main():
         output_text_file = None
 
         for a in range(len(input_parameters_list)):
-            # print("input_parameters_list", len(input_parameters_list))
             if input_parameters_list[a] == "-e":
                 try:
                     input_text_file = input_parameters_list[a+1]
@@ -1201,23 +1128,25 @@ def main():
         else:
             print("string_to_encrypt", string_to_encrypt)
             # encrypt file
-            print("Encrypt file.")
+            print("Encrypt message.")
             password = getpass("Password: ")
             print("Encrypting message.")
             encrypted_output_string = []
             encrypted_string = encrypt_string(
                 string_to_encrypt, password, encrypted_output_string)
             print("Encryption complete.")
-            print("encrypted_output_string depois do Encrypt", encrypted_string)
+            print("Encrypted Message",
+                  encrypted_string[0])
             # decrypt file
-            print("Decrypt file.")
+            print("Decrypt message.")
             password = getpass("Password: ")
             print("Decrypting message.")
             decrypted_output_string = []
-            print("Decryption complete.")
             decrypted_string = decrypt_string(
-                encrypted_string, password, decrypted_output_string)
-            print("encrypted_output_string depois do decrypt", decrypted_string)
+                encrypted_string[0], password, decrypted_output_string)
+            print("Decryption complete.")
+            print("Decrypted Message",
+                  decrypted_string[0])
 
 
 if __name__ == "__main__":
