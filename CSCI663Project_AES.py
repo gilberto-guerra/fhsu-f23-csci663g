@@ -183,7 +183,7 @@
 # encrypt_string(string_to_encrypt, password, encrypted_output_string)          #
 #   Encrypts the input string using AES in Output Feedback (OFB) mode.          #
 #                                                                               #
-#   string_to_encrypt: input string to be encrypted                             #
+#   string_to_encrypt: input string message to be encrypted                     #
 #   password: user password                                                     #
 #   encrypted_output_string: list to store the encrypted output                 #
 #                                                                               #
@@ -192,7 +192,7 @@
 # decrypt_string(string_to_decrypt, password, decrypted_output_string=None)     #
 #   Decrypts the input string encrypted using AES in OFB mode.                  #
 #                                                                               #
-#   string_to_decrypt: input string to be decrypted                             #
+#   string_to_decrypt: input string message to be decrypted                     #
 #   password: user password                                                     #
 #   decrypted_output_string: list to store the decrypted output                 #
 #                                                                               #
@@ -209,18 +209,22 @@
 # encrypt(file_to_encrypt, password, encrypted_output_text_file=None)           #
 #   Encrypts a text file using AES in Output Feedback (OFB) mode.               #
 #                                                                               #
-#    file_to_encrypt: path to the file to be encrypted                          #
+#   file_to_encrypt: file name of the file which contains the message to be     #
+#   encrypted                                                                   #
 #   password: user password                                                     #
-#   encrypted_output_text_file: optional output file for encrypted text         #
+#   encrypted_output_text_file: file name of the file with the encrypted        #
+#   message.                                                                    #
 #                                                                               #
 # ------------------------------------------------------------------------------#
 #                                                                               #
 # decrypt(file_to_decrypt, password, decrypted_output_text_file=None)           #
 #   Decrypts a text file encrypted using AES in OFB mode.                       #
 #                                                                               #
-#   file_to_decrypt: path to the file to be decrypted                           #
+#   file_to_decrypt: file name of the file which contains the message to be     #
+#   decrypted                                                                   #
 #   password: user password                                                     #
-#   decrypted_output_text_file: optional output file for decrypted text         #
+#   decrypted_output_text_file: file name of the file with the decrypted        #
+#   message.                                                                    #
 #                                                                               #
 # ------------------------------------------------------------------------------#
 #                                                                               #
