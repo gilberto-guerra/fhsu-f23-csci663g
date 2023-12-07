@@ -5,6 +5,228 @@
 # Instructor: Dr. Hong Zeng                                                     #
 # Contributor to this file: José Nazareno Torres Ambrósio                       #
 #                                                                               #
+######## DOCUMENTATION ##########################################################
+#                                                                               #
+# rotate_word_bytes(word, n):                                                   #
+#   Returns a replica of the word shifted n bytes (characters) to               #
+#   the left.                                                                   #
+#                                                                               #
+#   word: The input word to be rotated.                                         #
+#   n: The number of bytes to shift.                                            #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# shift_rows(state):                                                            #
+#   Iterates over each "virtual" row from the state table, shifting their bytes #
+#   to the left by the proper offset.                                           #
+#                                                                               #
+#   state: The state table.                                                     #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# shift_rows_inverse(state):                                                    #
+#   Iterates over each "virtual" row from the state table, shifting their bytes #
+#   to the right by the proper offset.                                          #
+#                                                                               #
+#   state: The state table.                                                     #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# key_schedule(word, i):                                                        #
+#   Receives a four-byte word and an iteration number, applies bytes rotation,  #
+#   bytes substitution, and returns the new word.                               #
+#                                                                               #
+#   word: The input word for key scheduling.                                    #
+#   i: The iteration number.                                                    #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# expandKey(cipher_key):                                                        #
+#   Expands the 256-bit cipher_key into 240 bytes of key from which each round  #
+#   key is obtained.                                                            #
+#                                                                               #
+#   cipher_key: The original cipher key.                                        #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# substitution_bytes(state):                                                    #
+#   Makes a SUBSTITUTION_BOX transform on each state table's values.            #
+#                                                                               #
+#   state: The state table.                                                     #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# substitution_bytes_inverse(state):                                            #
+#   Makes an inverse of SUBSTITUTION_BOX transform on each state table's values.#
+#                                                                               #
+#   state: The state table.                                                     #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# galois_field_multiplation_table(a, b):                                        #
+#   Implements the Galois Field Multiplication Table operation.                 #
+#                                                                               #
+#   a: Operand 1.                                                               #
+#   b: Operand 2.                                                               #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# mix_column(column):                                                           #
+#   Applies mix_column with the Galois field multiplication table application.  #
+#                                                                               #
+#   column: The column to be mixed.                                             #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# mix_column_inverse(column):                                                   #
+#   Applies mix_column inverse with the Galois field multiplication table       #
+#   application.                                                                #
+#                                                                               #
+#   column: The column to be mixed.                                             #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# mix_columns(state):                                                           #
+#   A mix_column wrapper used to generate a "virtual" column from the state     #
+#   table and apply column mixing.                                              #
+#                                                                               #
+#   state: The state table.                                                     #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# mix_columns_inverse(state):                                                   #
+#   A mix_column wrapper used to generate a "virtual" column from the state     #
+#    table and apply inverse column mixing.                                     #
+#                                                                               #
+# state: The state table.                                                       #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# add_round_key(state, round_key):                                              #
+#   XORs each state-table byte with each round_key byte to generate new state   #
+#   table byte values.                                                          #
+#                                                                               #
+#   state: The state table.                                                     #
+#   round_key: The round key.                                                   #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# create_round_key(expanded_key, n):                                            #
+#   Creates a sixteen-byte round-key taking sixteen bytes per round from the    #
+#   240 expanded_key.                                                           #
+#                                                                               #
+#   expanded_key: The expanded key.                                             #
+#   n: The round number.                                                        #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# aes_round(state, round_key):                                                  #
+#   Applies each of the round's four transformations, except for the last round #
+#   which does not contain the column mixing part.                              #
+#                                                                               #
+#   state: The state table.                                                     #
+#   round_key: The round key.                                                   #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# aes_round_inverse(state, round_key):                                          #
+#   Applies the inverse of each round's four transformations, except for the    #
+#   last round which does not contain the column mixing part.                   #
+#                                                                               #
+#   state: The state table.                                                     #
+#   round_key: The round key.                                                   #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# aes_rounds(state, expanded_key, num_rounds=14):                               #
+#   A wrapper function for the fourteen aes-rounds due to the 256-bit key use.  #
+#                                                                               #
+#   state: The state table.                                                     #
+#   expanded_key: The expanded key.                                             #
+#   num_rounds: The number of rounds (default is 14).                           #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# aes_rounds_inverse(state, expanded_key, num_rounds=14):                       #
+#   A wrapper function for the fourteen aes-rounds inverse due to the 256-bit   #
+#   key use.                                                                    #
+#                                                                               #
+#   state: The state table.                                                     #
+#   expanded_key: The expanded key.                                             #
+#   num_rounds: The number of rounds (default is 14).                           #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# aes_encrypt_or_decrypt_block(plaintext, key):                                 #
+#   Encrypts or decrypts a block (sixteen bytes) of plaintext.                  #
+#                                                                               #
+#   plaintext: The plaintext block.                                             #
+#   key: The encryption or decryption key.                                      #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# user_password_to_key(password)                                                #
+#   Converts the user password into a 256-bit AES key using SHA-256             #
+#                                                                               #
+#   password: user-provided password                                            #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# get_string_next_16_characters(string_to_encrypt, block_number)                #
+#   Extracts the next 16 characters from the input string for encryption.       #
+#                                                                               #
+#   string_to_encrypt: input string to be encrypted                             #
+#   block_number: current block number                                          #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# encrypt_string(string_to_encrypt, password, encrypted_output_string)          #
+#   Encrypts the input string using AES in Output Feedback (OFB) mode.          #
+#                                                                               #
+#   string_to_encrypt: input string to be encrypted                             #
+#   password: user password                                                     #
+#   encrypted_output_string: list to store the encrypted output                 #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# decrypt_string(string_to_decrypt, password, decrypted_output_string=None)     #
+#   Decrypts the input string encrypted using AES in OFB mode.                  #
+#                                                                               #
+#   string_to_decrypt: input string to be decrypted                             #
+#   password: user password                                                     #
+#   decrypted_output_string: list to store the decrypted output                 #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# get_next_block_of_16_characters(file_pointer)                                 #
+#   Reads the next 16 characters from an open file or pads the block if the end #
+#   of the file is reached.                                                     #
+#                                                                               #
+#   file_pointer: handle for the open file                                      #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# encrypt(file_to_encrypt, password, encrypted_output_text_file=None)           #
+#   Encrypts a text file using AES in Output Feedback (OFB) mode.               #
+#                                                                               #
+#    file_to_encrypt: path to the file to be encrypted                          #
+#   password: user password                                                     #
+#   encrypted_output_text_file: optional output file for encrypted text         #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# decrypt(file_to_decrypt, password, decrypted_output_text_file=None)           #
+#   Decrypts a text file encrypted using AES in OFB mode.                       #
+#                                                                               #
+#   file_to_decrypt: path to the file to be decrypted                           #
+#   password: user password                                                     #
+#   decrypted_output_text_file: optional output file for decrypted text         #
+#                                                                               #
+# ------------------------------------------------------------------------------#
+#                                                                               #
+# print_how_to_use()                                                            #
+#   Prints a help message explaining how to use the script.                     #
+#                                                                               #
 #################################################################################
 
 import sys
