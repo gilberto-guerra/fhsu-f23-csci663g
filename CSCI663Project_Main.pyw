@@ -119,22 +119,21 @@ class EncryptDecryptWindow(Frame):
     #
     def __init__(self, root, encrypt, keys, options, displayDefaults, defaultKeys, allowSelectFiles, encoding, buttonText):
         super().__init__()
-
+        
         if displayDefaults and len(keys) != len(defaultKeys):
             logging.warning(
                 'number of keys to be inputted and number of default keys are unequal')
             # default key boxes will just have -
             defaultKeys = [*'-'*len(keys)]
 
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=3)
-        self.columnconfigure(2, weight=2)
-        self.columnconfigure(3, weight=2)
+        self.columnconfigure(0, weight = 1)
+        self.columnconfigure(1, weight = 3)
+        self.columnconfigure(2, weight = 2)
+        self.columnconfigure(3, weight = 2)
 
         def chooseFile(targetVariable):
             logging.info('file selection window opened')
-            thefilename = filedialog.askopenfilename(
-                initialdir='./', title='Select file...')
+            thefilename = filedialog.askopenfilename(initialdir='./', title='Select file...')
             targetVariable.set(thefilename)
             logging.info(f'file chosen: {thefilename}')
 
@@ -163,7 +162,7 @@ class EncryptDecryptWindow(Frame):
             row_num += 1
 
         # keys
-
+        
         keyBoxes = {}
         keyFiles = {}
         keyChoices = {}
@@ -172,20 +171,18 @@ class EncryptDecryptWindow(Frame):
             if allowSelectFiles:
                 keyChoices[label] = StringVar(self, 'string')
                 keyFiles[label] = StringVar(self, '')
-                Radiobutton(self, text='Enter key in text box',
-                            variable=keyChoices[label], value='string').grid(row=row_num, column=1)
-                Radiobutton(self, text='Read key from file', variable=keyChoices[label], value='file').grid(
-                    row=row_num, column=2)
+                Radiobutton(self, text='Enter key in text box', variable=keyChoices[label], value='string').grid(row=row_num, column=1)
+                Radiobutton(self, text='Read key from file', variable=keyChoices[label], value='file').grid(row=row_num, column=2)
                 row_num += 1
-
+                
                 def choose_key_file(label):
                     chooseFile(keyFiles[label])
-                    logging.info(
-                        f'reading from file {keyFiles[label].get()} to key {label}')
+                    logging.info(f'reading from file {keyFiles[label].get()} to key {label}')
 
-                Button(self, text=f'Select file for key {label}...', command=(
-                    lambda label=label: choose_key_file(label))).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
+                Button(self, text=f'Select file for key {label}...', command=( lambda label=label: choose_key_file(label) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
+
+                
             Label(self, text=label).grid(row=row_num, column=0)
             keyBox = Text(self, height=4)
             keyBox.grid(row=row_num, column=1, pady=10)
@@ -197,18 +194,16 @@ class EncryptDecryptWindow(Frame):
         inputSource = StringVar(self, 'string')
         inputFile = StringVar(self, '')
         if allowSelectFiles:
-            Radiobutton(self, text='Enter text in text box',
-                        variable=inputSource, value='string').grid(row=row_num, column=1)
-            Radiobutton(self, text='Read text from file',
-                        variable=inputSource, value='file').grid(row=row_num, column=2)
+            Radiobutton(self, text='Enter text in text box', variable=inputSource, value='string').grid(row=row_num, column=1)
+            Radiobutton(self, text='Read text from file', variable=inputSource, value='file').grid(row=row_num, column=2)
             row_num += 1
-            Button(self, text='Select file...', command=(lambda: chooseFile(
-                inputFile))).grid(row=row_num, column=2, ipadx=4, ipady=4)
-
+            Button(self, text='Select file...', command=(lambda: chooseFile(inputFile) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
+                
         Label(self, text='Input').grid(row=row_num, column=0)
         input_text = Text(self, height=4)
         input_text.grid(row=row_num, column=1, pady=20)
-
+        
+        
         row_num += 1
 
         # options
@@ -280,13 +275,10 @@ class EncryptDecryptWindow(Frame):
         outputTarget = StringVar(self, 'string')
         outputFile = StringVar(self, '')
         if allowSelectFiles:
-            Radiobutton(self, text='Put text in text box', variable=outputTarget,
-                        value='string').grid(row=row_num, column=1)
-            Radiobutton(self, text='Write text to file', variable=outputTarget,
-                        value='file').grid(row=row_num, column=2)
+            Radiobutton(self, text='Put text in text box', variable=outputTarget, value='string').grid(row=row_num, column=1)
+            Radiobutton(self, text='Write text to file', variable=outputTarget, value='file').grid(row=row_num, column=2)
             row_num += 1
-            Button(self, text='Select file...', command=(lambda: chooseFile(
-                outputFile))).grid(row=row_num, column=2, ipadx=4, ipady=4)
+            Button(self, text='Select file...', command=(lambda: chooseFile(outputFile) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
         Label(self, text='Output').grid(row=row_num, column=0)
         output_text = ReadOnlyText(self)
@@ -309,44 +301,22 @@ rsa_security_levels = {
 rsa_params = RSAParameterGenerator()
 
 
-# # Define a function to clear the input text
-# def clearToTextInput(aes_steps_text):
-#     aes_steps_text.delete("1.0", END)
-
-
 def open_aes_encrypt(root):
     aes_string_message_encrypt = Toplevel(root)
 
     def encrypt(plaintext, keys, options, extraFrame):
         password = keys['Password'].strip()
 
-        aes_encrypt_string = aes.encrypt_string(plaintext, password, [])
+        example = 'you could put round keys here'.split()
+        for i in example:
+            Label(extraFrame, text=i).pack(side=TOP,padx=3,pady=3)
 
-        aes_steps = list(aes_encrypt_string[1:])
-
-        # Add a Scrollbar(horizontal)
-        v = Scrollbar(extraFrame, orient='vertical')
-        v.pack(side=RIGHT, fill='y')
-
-        aes_steps_text = Text(extraFrame, wrap="word", width=60,
-                              height=30, yscrollcommand=v.set)
-
-        # clearToTextInput(aes_steps_text)
-
-        for i in aes_steps:
-            # line = "".join(str(i))
-            # aes_steps_text.insert(END, line + "\n")
-            # aes_steps_text.insert(END, str(i))
-            aes_steps_text.insert(END, aes_steps)
-
-            v.config(command=aes_steps_text.yview)
-            aes_steps_text.pack(side=TOP, padx=3, pady=3)
-
-        return aes_encrypt_string[0]
-
+        return aes.encrypt_string(plaintext, password, [])
     aesFrame = EncryptDecryptWindow(
         aes_string_message_encrypt, encrypt, ['Password'], {}, False, [], True, 'latin-1', 'Encrypt')
     aesFrame.pack(padx=20, pady=20)
+
+
 
 
 def open_aes_decrypt(root):
@@ -355,25 +325,9 @@ def open_aes_decrypt(root):
     def decrypt(ciphertext, keys, options, extraFrame):
         password = keys['Password'].strip()
 
-        aes_decrypt_string = aes.decrypt_string(ciphertext, password, [])
-
-        aes_steps = list(aes_decrypt_string[1:])
-
-        # Add a Scrollbar(horizontal)
-        v = Scrollbar(extraFrame, orient='vertical')
-        v.pack(side=RIGHT, fill='y')
-
-        aes_steps_text = Text(extraFrame, wrap="word", width=60,
-                              height=30, yscrollcommand=v.set)
-
-        for i in aes_steps:
-            aes_steps_text.insert(END, aes_steps)
-
-            v.config(command=aes_steps_text.yview)
-            aes_steps_text.pack(side=TOP, padx=3, pady=3)
-
-        return aes_decrypt_string[0]
-
+        
+        
+        return aes.decrypt_string(ciphertext, password, [])
     aesFrame = EncryptDecryptWindow(
         aesWindow, decrypt, ['Password'], {}, False, [], True, 'latin-1', 'Decrypt')
     aesFrame.pack(padx=20, pady=20)
@@ -428,7 +382,7 @@ def open_rsa_encrypt(root):
         return rsa.encrypt(plaintext, n, e, options['encode'] == '1')
 
     rsaFrame = EncryptDecryptWindow(rsaWindow, encrypt, ['n', 'e'], {'encode': {
-                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], True, 'utf-8', 'Encrypt')
+                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], True, 'utf-8','Encrypt')
     rsaFrame.pack(padx=20, pady=20)
 
 
@@ -453,7 +407,6 @@ def open_rsa_decrypt(root):
     rsaFrame = EncryptDecryptWindow(rsaWindow, decrypt, ['n', 'd'], {'decode': {
                                     '0': 'Convert decrypted message integer to bytes in little-endian order, then to string', '1': 'Keep message as integer'}}, True, [str(def_n), str(def_d)], True, 'utf-8', 'Decrypt')
     rsaFrame.pack(padx=20, pady=20)
-
 
 root = Tk()
 
