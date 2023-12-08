@@ -1,22 +1,36 @@
+######## INFORMATION ############################################################
+#                                                                               #
+# CSCI663G VA                                                                   #
+# Fall 2023                                                                     #
+# Instructor: Dr. Hong Zeng                                                     #
+# Contributors to this file:                                                    #
+# - Gilberto Andrés Guerra González (EncryptDecryptWinodw class, most other     #
+#   tkinter code)                                                               #
+# - José Nazareno Torres Ambrósio (details of AES/GUI integration)              #
+#                                                                               #
+#################################################################################
+
+
 import logging
 import time
 from tkinter import *
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog
 import os
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.CRITICAL,
                     format=' %(asctime)s -  %(levelname)s -  %(message)s')
 
 
-# RSA implemented by Gilberto Andres Guerra Gonzalez
+# RSA implemented by Gilberto Andrés Guerra González
 try:
     import CSCI663Project_RSA as rsa
 except Exception as e:
     logging.critical(e)
     exit(1)
 
-# AES implemented by Jose Nazareno Torres Ambrosio
+# AES implemented by José Nazareno Torres Ambrósio
 try:
     import CSCI663Project_AES as aes
 except Exception as e:
@@ -116,28 +130,44 @@ class EncryptDecryptWindow(Frame):
     # defaultKeys: array of default keys to be displayed, must be as long as keys array
     #
     # ----------------------------------------------------------------
+    # allowSelectFiles: whether user can put in files for input/output or not
+    #
+    # ----------------------------------------------------------------
+    # encoding: encoding type, such as latin-1 (used for aes) or utf-8 (used for rsa), to read/write files with
+    #
+    # ----------------------------------------------------------------
+    # buttonText: what is displayed on button
+    #
+    #
     #
     def __init__(self, root, encrypt, keys, options, displayDefaults, defaultKeys, allowSelectFiles, encoding, buttonText):
         super().__init__()
-        
+
         if displayDefaults and len(keys) != len(defaultKeys):
             logging.warning(
                 'number of keys to be inputted and number of default keys are unequal')
             # default key boxes will just have -
             defaultKeys = [*'-'*len(keys)]
 
-        self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 3)
-        self.columnconfigure(2, weight = 2)
-        self.columnconfigure(3, weight = 2)
+        # column 0: textbox labels
+        # column 1: text inputs/outputs
+        # column 2: file inputs/outputs
+        # column 3: extra space, only used for aes
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=3)
+        self.columnconfigure(2, weight=2)
+        self.columnconfigure(3, weight=2)
 
         def chooseFile(targetVariable):
             logging.info('file selection window opened')
-            thefilename = filedialog.askopenfilename(initialdir='./', title='Select file...')
+            thefilename = filedialog.askopenfilename(
+                initialdir='./', title='Select file...')
             targetVariable.set(thefilename)
             logging.info(f'file chosen: {thefilename}')
 
         Frame.__init__(self, root)
+
+        # 0 = default keys, 1 = input keys
         keyChoice = StringVar(self, '0')
         if not displayDefaults:
             keyChoice.set('1')
@@ -161,49 +191,67 @@ class EncryptDecryptWindow(Frame):
                         variable=keyChoice, value='1').grid(row=row_num, column=1, pady=10)
             row_num += 1
 
+            separator = ttk.Separator(self, orient='horizontal')
+            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+            row_num += 1
+
         # keys
-        
+
         keyBoxes = {}
         keyFiles = {}
         keyChoices = {}
+
+        
 
         for label in keys:
             if allowSelectFiles:
                 keyChoices[label] = StringVar(self, 'string')
                 keyFiles[label] = StringVar(self, '')
-                Radiobutton(self, text='Enter key in text box', variable=keyChoices[label], value='string').grid(row=row_num, column=1)
-                Radiobutton(self, text='Read key from file', variable=keyChoices[label], value='file').grid(row=row_num, column=2)
+                Radiobutton(self, text='Enter key in text box',
+                            variable=keyChoices[label], value='string').grid(row=row_num, column=1)
+                Radiobutton(self, text='Read key from file', variable=keyChoices[label], value='file').grid(
+                    row=row_num, column=2)
                 row_num += 1
-                
+
                 def choose_key_file(label):
                     chooseFile(keyFiles[label])
-                    logging.info(f'reading from file {keyFiles[label].get()} to key {label}')
+                    logging.info(
+                        f'reading from file {keyFiles[label].get()} to key {label}')
 
+                Button(self, text=f'Select file for key {label}...', command=(
+                    lambda label=label: choose_key_file(label))).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
-                Button(self, text=f'Select file for key {label}...', command=( lambda label=label: choose_key_file(label) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
-
-                
             Label(self, text=label).grid(row=row_num, column=0)
             keyBox = Text(self, height=4)
             keyBox.grid(row=row_num, column=1, pady=10)
             keyBoxes[label] = keyBox
             row_num += 1
 
+        separator = ttk.Separator(self, orient='horizontal')
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+        row_num += 1
+
         # input box
 
         inputSource = StringVar(self, 'string')
         inputFile = StringVar(self, '')
         if allowSelectFiles:
-            Radiobutton(self, text='Enter text in text box', variable=inputSource, value='string').grid(row=row_num, column=1)
-            Radiobutton(self, text='Read text from file', variable=inputSource, value='file').grid(row=row_num, column=2)
+            Radiobutton(self, text='Enter text in text box',
+                        variable=inputSource, value='string').grid(row=row_num, column=1)
+            Radiobutton(self, text='Read text from file',
+                        variable=inputSource, value='file').grid(row=row_num, column=2)
             row_num += 1
-            Button(self, text='Select file...', command=(lambda: chooseFile(inputFile) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
-                
+            Button(self, text='Select file...', command=(lambda: chooseFile(
+                inputFile))).grid(row=row_num, column=2, ipadx=4, ipady=4)
+
         Label(self, text='Input').grid(row=row_num, column=0)
         input_text = Text(self, height=4)
         input_text.grid(row=row_num, column=1, pady=20)
-        
-        
+
+        row_num += 1
+
+        separator = ttk.Separator(self, orient='horizontal')
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
         row_num += 1
 
         # options
@@ -218,8 +266,16 @@ class EncryptDecryptWindow(Frame):
                             variable=optionChoices[var], value=internal).pack(side=TOP)
             row_num += 1
 
+        if options:
+            separator = ttk.Separator(self, orient='horizontal')
+            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+            row_num += 1
+
+
         # main button
 
+
+        # get all keys as strings, from files and/or textboxes
         def getKeys():
             if keyChoice.get() == '1':
                 result = {}
@@ -238,15 +294,17 @@ class EncryptDecryptWindow(Frame):
                 result = {}
                 for (name, key) in zip(keys, defaultKeys):
                     result[name] = key
-            print(result)
+            #print(result)
             return result
 
+        # gather options as dictionary
         def getOptions():
             result = {}
             for var in options.keys():
                 result[var] = optionChoices[var].get()
             return result
 
+        # get input as string from file/textbox
         def getInput():
             if inputSource.get() == 'string':
                 return input_text.get(1.0, END).strip()
@@ -257,6 +315,7 @@ class EncryptDecryptWindow(Frame):
                 print(txt)
                 return txt
 
+        # write output to file/textbox
         def writeOutput(txt):
             if outputTarget.get() == 'string':
                 output_text.replace(txt)
@@ -270,15 +329,22 @@ class EncryptDecryptWindow(Frame):
             getInput(), getKeys(), getOptions(), extraFrame)))).grid(row=row_num, column=1, ipadx=4, ipady=4, pady=10)
         row_num += 1
 
+        separator = ttk.Separator(self, orient='horizontal')
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+        row_num += 1
+
         # output box
 
         outputTarget = StringVar(self, 'string')
         outputFile = StringVar(self, '')
         if allowSelectFiles:
-            Radiobutton(self, text='Put text in text box', variable=outputTarget, value='string').grid(row=row_num, column=1)
-            Radiobutton(self, text='Write text to file', variable=outputTarget, value='file').grid(row=row_num, column=2)
+            Radiobutton(self, text='Put text in text box', variable=outputTarget,
+                        value='string').grid(row=row_num, column=1)
+            Radiobutton(self, text='Write text to file', variable=outputTarget,
+                        value='file').grid(row=row_num, column=2)
             row_num += 1
-            Button(self, text='Select file...', command=(lambda: chooseFile(outputFile) ) ).grid(row=row_num, column=2, ipadx=4, ipady=4)
+            Button(self, text='Select file...', command=(lambda: chooseFile(
+                outputFile))).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
         Label(self, text='Output').grid(row=row_num, column=0)
         output_text = ReadOnlyText(self)
@@ -301,22 +367,44 @@ rsa_security_levels = {
 rsa_params = RSAParameterGenerator()
 
 
+# # Define a function to clear the input text
+# def clearToTextInput(aes_steps_text):
+#     aes_steps_text.delete("1.0", END)
+
+
 def open_aes_encrypt(root):
     aes_string_message_encrypt = Toplevel(root)
 
     def encrypt(plaintext, keys, options, extraFrame):
         password = keys['Password'].strip()
 
-        example = 'you could put round keys here'.split()
-        for i in example:
-            Label(extraFrame, text=i).pack(side=TOP,padx=3,pady=3)
+        aes_encrypt_string = aes.encrypt_string(plaintext, password, [])
 
-        return aes.encrypt_string(plaintext, password, [])
+        aes_steps = list(aes_encrypt_string[1:])
+
+        # Add a Scrollbar(horizontal)
+        v = Scrollbar(extraFrame, orient='vertical')
+        v.pack(side=RIGHT, fill='y')
+
+        aes_steps_text = Text(extraFrame, wrap="word", width=60,
+                              height=30, yscrollcommand=v.set)
+
+        # clearToTextInput(aes_steps_text)
+
+        for i in aes_steps:
+            # line = "".join(str(i))
+            # aes_steps_text.insert(END, line + "\n")
+            # aes_steps_text.insert(END, str(i))
+            aes_steps_text.insert(END, aes_steps)
+
+            v.config(command=aes_steps_text.yview)
+            aes_steps_text.pack(side=TOP, padx=3, pady=3)
+
+        return aes_encrypt_string[0]
+
     aesFrame = EncryptDecryptWindow(
         aes_string_message_encrypt, encrypt, ['Password'], {}, False, [], True, 'latin-1', 'Encrypt')
     aesFrame.pack(padx=20, pady=20)
-
-
 
 
 def open_aes_decrypt(root):
@@ -325,9 +413,25 @@ def open_aes_decrypt(root):
     def decrypt(ciphertext, keys, options, extraFrame):
         password = keys['Password'].strip()
 
-        
-        
-        return aes.decrypt_string(ciphertext, password, [])
+        aes_decrypt_string = aes.decrypt_string(ciphertext, password, [])
+
+        aes_steps = list(aes_decrypt_string[1:])
+
+        # Add a Scrollbar(horizontal)
+        v = Scrollbar(extraFrame, orient='vertical')
+        v.pack(side=RIGHT, fill='y')
+
+        aes_steps_text = Text(extraFrame, wrap="word", width=60,
+                              height=30, yscrollcommand=v.set)
+
+        for i in aes_steps:
+            aes_steps_text.insert(END, aes_steps)
+
+            v.config(command=aes_steps_text.yview)
+            aes_steps_text.pack(side=TOP, padx=3, pady=3)
+
+        return aes_decrypt_string[0]
+
     aesFrame = EncryptDecryptWindow(
         aesWindow, decrypt, ['Password'], {}, False, [], True, 'latin-1', 'Decrypt')
     aesFrame.pack(padx=20, pady=20)
@@ -382,7 +486,7 @@ def open_rsa_encrypt(root):
         return rsa.encrypt(plaintext, n, e, options['encode'] == '1')
 
     rsaFrame = EncryptDecryptWindow(rsaWindow, encrypt, ['n', 'e'], {'encode': {
-                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], True, 'utf-8','Encrypt')
+                                    '0': 'Convert message to bytes and then integer in little-endian order', '1': 'Message is already integer'}}, True, [str(def_n), str(def_e)], True, 'utf-8', 'Encrypt')
     rsaFrame.pack(padx=20, pady=20)
 
 
@@ -407,6 +511,7 @@ def open_rsa_decrypt(root):
     rsaFrame = EncryptDecryptWindow(rsaWindow, decrypt, ['n', 'd'], {'decode': {
                                     '0': 'Convert decrypted message integer to bytes in little-endian order, then to string', '1': 'Keep message as integer'}}, True, [str(def_n), str(def_d)], True, 'utf-8', 'Decrypt')
     rsaFrame.pack(padx=20, pady=20)
+
 
 root = Tk()
 
