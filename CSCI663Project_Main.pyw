@@ -51,7 +51,6 @@ class RSAParameterGenerator:
 
 # read-only text boxes for various keys and outputs
 
-
 class ReadOnlyText(Text):
     def __init__(self, root):
         Text.__init__(self, root, height=3)
@@ -185,14 +184,14 @@ class EncryptDecryptWindow(Frame):
                 Label(self, text=label).grid(row=row_num, column=0)
                 keyBox = ReadOnlyText(self)
                 keyBox.replace(key)
-                keyBox.grid(row=row_num, column=1, pady=10)
+                keyBox.grid(row=row_num, column=1, pady=5)
                 row_num += 1
             Radiobutton(self, text='Input keys',
                         variable=keyChoice, value='1').grid(row=row_num, column=1, pady=10)
             row_num += 1
 
             separator = ttk.Separator(self, orient='horizontal')
-            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=8)
             row_num += 1
 
         # keys
@@ -228,7 +227,7 @@ class EncryptDecryptWindow(Frame):
             row_num += 1
 
         separator = ttk.Separator(self, orient='horizontal')
-        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=8)
         row_num += 1
 
         # input box
@@ -246,12 +245,12 @@ class EncryptDecryptWindow(Frame):
 
         Label(self, text='Input').grid(row=row_num, column=0)
         input_text = Text(self, height=3)
-        input_text.grid(row=row_num, column=1, pady=20)
+        input_text.grid(row=row_num, column=1, pady=15)
 
         row_num += 1
 
         separator = ttk.Separator(self, orient='horizontal')
-        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=8)
         row_num += 1
 
         # options
@@ -268,7 +267,7 @@ class EncryptDecryptWindow(Frame):
 
         if options:
             separator = ttk.Separator(self, orient='horizontal')
-            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+            separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=8)
             row_num += 1
 
 
@@ -330,7 +329,7 @@ class EncryptDecryptWindow(Frame):
         row_num += 1
 
         separator = ttk.Separator(self, orient='horizontal')
-        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=15)
+        separator.grid(row=row_num, column=0, columnspan=4, sticky='we', pady=8)
         row_num += 1
 
         # output box
@@ -348,7 +347,7 @@ class EncryptDecryptWindow(Frame):
 
         Label(self, text='Output').grid(row=row_num, column=0)
         output_text = ReadOnlyText(self)
-        output_text.grid(row=row_num, column=1, pady=20)
+        output_text.grid(row=row_num, column=1, pady=15)
         row_num += 1
 
         # frame for other algorithm output
