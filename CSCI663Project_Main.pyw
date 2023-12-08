@@ -352,7 +352,7 @@ class EncryptDecryptWindow(Frame):
 
         # frame for other algorithm output
         extraFrame = Frame(self)
-        extraFrame.grid(row=0, rowspan=row_num-1, column=3, sticky='n')
+        extraFrame.grid(row=0, rowspan=row_num, column=3, sticky='n')
 
 
 rsa_security_levels = {
@@ -375,6 +375,9 @@ def open_aes_encrypt(root):
     aes_string_message_encrypt = Toplevel(root)
 
     def encrypt(plaintext, keys, options, extraFrame):
+        for widget in extraFrame.winfo_children():
+            widget.destroy()
+        
         password = keys['Password'].strip()
 
         aes_encrypt_string = aes.encrypt_string(plaintext, password, [])
@@ -410,6 +413,9 @@ def open_aes_decrypt(root):
     aesWindow = Toplevel(root)
 
     def decrypt(ciphertext, keys, options, extraFrame):
+        for widget in extraFrame.winfo_children():
+            widget.destroy()
+        
         password = keys['Password'].strip()
 
         aes_decrypt_string = aes.decrypt_string(ciphertext, password, [])
