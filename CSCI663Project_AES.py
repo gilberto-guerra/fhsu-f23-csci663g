@@ -500,17 +500,17 @@ def create_round_key(expanded_key, n):
 # with the exception of the last round which does not contains the column mixing part
 def aes_round(state, round_key, round_number, aes_steps):
     substitution_bytes(state)
-    aes_steps.append("Round Key " + str(round_number) + " Byte Substitution")
-    aes_steps.append(state)
+    # aes_steps.append("Round Key " + str(round_number) + " Byte Substitution")
+    # aes_steps.append(state)
     shift_rows(state)
-    aes_steps.append("Round Key " + str(round_number) + " Shift Rows")
-    aes_steps.append(state)
+    # aes_steps.append("Round Key " + str(round_number) + " Shift Rows")
+    # aes_steps.append(state)
     mix_columns(state)
-    aes_steps.append("Round Key " + str(round_number) + " Mix Columns")
-    aes_steps.append(state)
+    # aes_steps.append("Round Key " + str(round_number) + " Mix Columns")
+    # aes_steps.append(state)
     add_round_key(state, round_key)
-    aes_steps.append("Round Key " + str(round_number) + " Round Key Addition")
-    aes_steps.append(state)
+    # aes_steps.append("Round Key " + str(round_number) + " Round Key Addition")
+    # aes_steps.append(state)
 
 
 # applies the inverse of each round's four transformations
@@ -540,14 +540,14 @@ def aes_rounds(state, expanded_key, aes_steps, num_rounds=14):
     aes_steps.append("Final Round Key 14")
     aes_steps.append(round_key)
     substitution_bytes(state)
-    aes_steps.append("Final Round 14 Byte Substitution")
-    aes_steps.append(state)
+    # aes_steps.append("Final Round 14 Byte Substitution")
+    # aes_steps.append(state)
     shift_rows(state)
-    aes_steps.append("Final Round 14 Shift Rows")
-    aes_steps.append(state)
+    # aes_steps.append("Final Round 14 Shift Rows")
+    # aes_steps.append(state)
     add_round_key(state, round_key)
-    aes_steps.append("Final Round 14 Round Key Addition")
-    aes_steps.append(state)
+    # aes_steps.append("Final Round 14 Round Key Addition")
+    # aes_steps.append(state)
 
 
 # wrapper function for the fourteen aes-rounds inverse because of the 256-bit key use
@@ -592,8 +592,8 @@ def aes_encrypt_or_decrypt_block(plaintext, key, aes_steps):
     aes_steps.append("Message block to Encrypt")
     aes_steps.append(block)
     expanded_key = expandKey(key)
-    aes_steps.append("Expanded Key")
-    aes_steps.append(expanded_key)
+    # aes_steps.append("Expanded Key")
+    # aes_steps.append(expanded_key)
     aes_rounds(block, expanded_key, aes_steps)
     aes_steps.append("Message block after AES rounds")
     aes_steps.append(block)
