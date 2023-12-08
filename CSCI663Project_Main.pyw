@@ -54,7 +54,7 @@ class RSAParameterGenerator:
 
 class ReadOnlyText(Text):
     def __init__(self, root):
-        Text.__init__(self, root, height=4)
+        Text.__init__(self, root, height=3)
         self.config(state=DISABLED)
 
     def replace(self, text):
@@ -222,7 +222,7 @@ class EncryptDecryptWindow(Frame):
                     lambda label=label: choose_key_file(label))).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
             Label(self, text=label).grid(row=row_num, column=0)
-            keyBox = Text(self, height=4)
+            keyBox = Text(self, height=3)
             keyBox.grid(row=row_num, column=1, pady=10)
             keyBoxes[label] = keyBox
             row_num += 1
@@ -245,7 +245,7 @@ class EncryptDecryptWindow(Frame):
                 inputFile))).grid(row=row_num, column=2, ipadx=4, ipady=4)
 
         Label(self, text='Input').grid(row=row_num, column=0)
-        input_text = Text(self, height=4)
+        input_text = Text(self, height=3)
         input_text.grid(row=row_num, column=1, pady=20)
 
         row_num += 1
@@ -282,11 +282,11 @@ class EncryptDecryptWindow(Frame):
                 for key in keys:
                     if allowSelectFiles and keyChoices[key].get() == 'file':
                         file = keyFiles[key]
-                        print(f'attempting to open file for key {key}')
+                        #print(f'attempting to open file for key {key}')
                         f = open(file.get())
-                        print(f'printing f: {f}')
+                        #print(f'printing f: {f}')
                         result[key] = f.read().strip()
-                        print(result[key])
+                        #print(result[key])
                         f.close()
                     else:
                         result[key] = keyBoxes[key].get(1.0, END).strip()
@@ -312,7 +312,7 @@ class EncryptDecryptWindow(Frame):
                 f = open(inputFile.get(), encoding=encoding)
                 txt = f.read()
                 f.close()
-                print(txt)
+                #print(txt)
                 return txt
 
         # write output to file/textbox
@@ -322,7 +322,7 @@ class EncryptDecryptWindow(Frame):
             else:
                 f = open(outputFile.get(), 'w', encoding=encoding)
                 f.write(str(txt))
-                print(txt)
+                #print(txt)
                 f.close()
 
         Button(self, text=buttonText, command=(lambda: writeOutput(encrypt(
