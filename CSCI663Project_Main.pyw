@@ -6,7 +6,8 @@
 # Contributors to this file:                                                    #
 # - Gilberto Andrés Guerra González (EncryptDecryptWinodw class, most other     #
 #   tkinter code)                                                               #
-# - José Nazareno Torres Ambrósio (details of AES/GUI integration)              #
+# - José Nazareno Torres Ambrósio (AES with GUI integration, AES steps          #
+#   including round keys shown in GUI, Text Files with GUI integration          #
 #                                                                               #
 #################################################################################
 
